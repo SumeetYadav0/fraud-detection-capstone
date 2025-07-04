@@ -79,15 +79,15 @@ Used **SMOTE** (only on training data) to synthetically generate samples of the 
 
 ### 📌 Confusion Matrix
 
-![Confusion Matrix](assets/confusion_matrix.png)
+![Confusion Matrix](images/confusion_matrix.png)
 
 ### 📈 ROC Curve
 
-![ROC Curve](assets/roc_curve.png)
+![ROC Curve](images/roc_curve.png)
 
 ### 📉 Precision-Recall Curve
 
-![PR Curve](assets/precision_recall_curve.png)
+![PR Curve](images/pr_curve.png)
 
 ---
 
@@ -95,7 +95,7 @@ Used **SMOTE** (only on training data) to synthetically generate samples of the 
 
 Feature importances (LightGBM):
 
-![Feature Importance](assets/feature_importance.png)
+![Feature Importance](images/feature_importance.png)
 
 ---
 
