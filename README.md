@@ -1,40 +1,135 @@
-📊 Dataset Overview
-This project utilizes a realistic simulation of mobile financial transactions to detect fraudulent behavior in digital payments. The dataset captures detailed transaction records typically seen in mobile money services, commonly used in regions with high financial inclusion via mobile platforms.
 
-Each row in the dataset represents a single transaction with the following attributes:
+# 🚨 Fraud Detection System
 
-step: Hourly time step from the start of the simulation.
-type: Type of transaction (CASH-IN, CASH-OUT, TRANSFER, DEBIT, PAYMENT).
-amount: The amount of money involved in the transaction.
-nameOrig: Customer initiating the transaction.
-oldbalanceOrg: Initial balance of the sender before the transaction.
-newbalanceOrig: Balance of the sender after the transaction.
-nameDest: Recipient of the transaction.
-oldbalanceDest: Initial balance of the receiver before the transaction.
-newbalanceDest: Balance of the receiver after the transaction.
-isFraud: Target variable indicating whether the transaction was fraudulent (1) or genuine (0).
+A complete end-to-end ML pipeline to detect fraudulent transactions using engineered features, balanced training, and a deployed interface for predictions.
 
-🔍 Objective:
-Build a robust fraud detection system that can identify and flag suspicious financial activity in real time using machine learning, ultimately helping financial service providers reduce risk and protect users.
+---
 
+## 📌 Problem Statement
 
-Transaction Types Distribution
-Summary: Imbalanced, with PAYMENT and CASH_IN dominating.
-![alt text](images/transaction_type_count.png)
+Financial fraud is a critical issue. The goal is to **identify fraudulent transactions** using transaction-level data and deploy a system that predicts fraud in real-time.
 
-Fraud by Transaction Type
-Summary: Fraud occurs only in TRANSFER and CASH_OUT, so type may leak info.
-![alt text](images/transaction_type_vs_fraud.png)
+---
 
-Numerical Feature Distributions
-Summary: Skewed distributions and outliers are natural, so avoid aggressive cleaning.
-![alt text](images/numerical_features_hist.png)
+## 🧠 Solution Approach (Summary)
 
-Correlation Matrix
-Summary: Strong correlation (0.83) between step and fraud.
-![alt text](images/correlation_matrix.png)
+1. **Data Preprocessing**
+2. **Exploratory Data Analysis (EDA)**
+3. **Feature Engineering** (⚠️ Avoided label leakage)
+4. **SMOTE for Class Balancing**
+5. **Model Training (LightGBM & others)**
+6. **Model Evaluation with Metrics & Curves**
+7. **Model Deployment using Streamlit**
+8. **Feature Importance Visualizations**
 
-Step Bins vs Fraud
-Summary: Fraud spikes from step 11 onwards; model bias caution needed.
-![alt text](images/step_bin_vs_fraud.png)
+---
 
+## 📊 Dataset Summary
+
+| Class       | Count | Percentage |
+|-------------|-------|------------|
+| Non-Fraud   | 10000 | 89.75%     |
+| Fraud       | 1142  | 10.25%     |
+
+⚠️ **Highly imbalanced**, requiring SMOTE for better learning.
+
+---
+
+## 🧪 Feature Engineering
+
+Dropped raw balance columns and created smart features to prevent leakage:
+
+```python
+balance_diff_orig   = oldbalanceOrg - newbalanceOrig
+balance_diff_dest   = newbalanceDest - oldbalanceDest
+error_balance_orig  = oldbalanceOrg - amount - newbalanceOrig
+error_balance_dest  = oldbalanceDest + amount - newbalanceDest
+```
+
+✅ This logic is modularized in `utils.py` → `transform_features()`.
+
+---
+
+## ⚖️ Handling Class Imbalance
+
+Used **SMOTE** (only on training data) to synthetically generate samples of the minority class (`isFraud = 1`).
+
+✅ Prevents the model from overfitting on majority class.
+
+---
+
+## 🔍 Model Training
+
+- Models tried: Logistic Regression, Random Forest, LightGBM ✅ (Best)
+- Pipeline: `StandardScaler + LightGBM` using `Pipeline`
+- Final model saved as: `fraud_detection_pipeline.pkl`
+
+---
+
+## ✅ Model Evaluation
+
+### 📋 Classification Report
+
+| Metric     | Non-Fraud | Fraud |
+|------------|-----------|-------|
+| Precision  | 0.98      | 0.92  |
+| Recall     | 0.99      | 0.82  |
+| F1-Score   | 0.99      | 0.87  |
+| Accuracy   | 0.97 (overall) |
+
+### 📌 Confusion Matrix
+
+![Confusion Matrix](assets/confusion_matrix.png)
+
+### 📈 ROC Curve
+
+![ROC Curve](assets/roc_curve.png)
+
+### 📉 Precision-Recall Curve
+
+![PR Curve](assets/precision_recall_curve.png)
+
+---
+
+## 📦 Model Explainability
+
+Feature importances (LightGBM):
+
+![Feature Importance](assets/feature_importance.png)
+
+---
+
+## 🌐 Streamlit App
+
+- 📁 File: `app.py`
+- Loads pipeline using `joblib`
+- Accepts user input: amount, balances, etc.
+- Recomputes features → Predicts fraud
+
+🎯 Live prediction, based on trained pipeline.
+
+---
+
+## 🛠 Folder Structure
+
+```
+.
+├── Fraud_Analysis_Dataset.csv
+├── app.py                      ← Streamlit app
+├── train_model.ipynb           ← Model training pipeline
+├── deploy_model.ipynb          ← Feature testing / sandbox
+├── fraud_detection_pipeline.pkl← Trained model
+├── utils.py                    ← Feature engineering logic
+├── README.md                   ← You're here!
+├── assets/                     ← Images for plots
+```
+
+---
+
+## 💡 Key Takeaways
+
+- Avoided **label leakage** by engineering clean, logical features.
+- Used **SMOTE** smartly to balance training.
+- Achieved **~0.97 accuracy** with excellent recall using **LightGBM**.
+- Built a **streamlit app** for real-time fraud prediction.
+- Pipeline is **modular, explainable, and production-ready**.
