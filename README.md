@@ -121,7 +121,7 @@ Feature importances (LightGBM):
 ├── fraud_detection_pipeline.pkl← Trained model
 ├── utils.py                    ← Feature engineering logic
 ├── README.md                   ← You're here!
-├── assets/                     ← Images for plots
+├── images/                     ← Images for plots
 ```
 
 ---
