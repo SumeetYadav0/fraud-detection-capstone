@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 import matplotlib.pyplot as plt
+import joblib
 
 # Set page config
 st.set_page_config(page_title="Fraud Detection", layout="centered")
